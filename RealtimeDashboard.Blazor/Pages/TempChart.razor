@@ -1,0 +1,85 @@
+﻿@page "/tempchart"
+@using Microsoft.AspNetCore.SignalR.Client
+@using RealtimeDashboard.Common
+@using ChartJs.Blazor.BarChart
+@using ChartJs.Blazor.BarChart.Axes
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Common.Axes
+@using ChartJs.Blazor.Common.Axes.Ticks
+@using ChartJs.Blazor.Common.Enums
+@using ChartJs.Blazor.Util
+@using System.Drawing
+
+@inject HubConnection _hubConnection
+
+<Chart Config="_config"></Chart>
+
+@code {
+
+    readonly BarConfig _config = new()
+    {
+        Options = new BarOptions
+        {
+            Responsive = true,
+            Legend = new Legend
+            {
+                Position = Position.Top
+            },
+            Title = new OptionsTitle
+            {
+                Display = true,
+                Text = "Temperature"
+            },
+            Scales = new BarScales
+            {
+                YAxes = new List<CartesianAxis>
+                {
+                    new BarLinearCartesianAxis
+                    {
+                        Ticks = new LinearCartesianTicks
+                        {
+                            BeginAtZero = true
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    readonly IDataset<int> _newYorkDataset = new BarDataset<int>(new List<int>(7))
+    {
+        Label = "New York City",
+        BackgroundColor = ColorUtil.FromDrawingColor(Color.FromArgb(255, 99, 132)),
+        BorderColor = ColorUtil.FromDrawingColor(Color.FromArgb(255, 99, 132))
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+    // Add the New York dataset to the chart config
+        _config.Data.Datasets.Add(_newYorkDataset);
+
+    // Set up the SignalR message handler
+        _hubConnection.On<List<DashboardMessage>>(Constants.WeatherMessageTarget, async messages =>
+        {
+            foreach (var dashboardMessage in messages)
+            {
+    // poor man's debugging
+                Console.WriteLine($"Received new temp: {dashboardMessage.Details}");
+
+    // Add a new label. For now it is just the number of the reading. It could be the date and time.
+                _config.Data.Labels.Add(_config.Data.Labels.Count.ToString());
+
+    // Add the new reading to the dataset 
+                _newYorkDataset.Add(Convert.ToInt32(dashboardMessage.Details));
+            }
+
+            StateHasChanged();
+        });
+
+    // Start listening for SignalR message
+        await _hubConnection.StartAsync();
+
+        await base.OnInitializedAsync();
+    }
+
+}

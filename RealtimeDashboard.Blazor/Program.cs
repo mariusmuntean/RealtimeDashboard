@@ -22,27 +22,25 @@ namespace RealtimeDashboard.Blazor
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
             builder.Services.AddScoped(sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
-
+            await AddSignalR(builder.Services);
 
             var webAssemblyHost = builder.Build();
-
-            await ConfigureSignalR(webAssemblyHost.Services);
-
             await webAssemblyHost.RunAsync();
         }
 
-        private static async Task ConfigureSignalR(IServiceProvider serviceProvider)
+        private static async Task AddSignalR(IServiceCollection serviceCollection)
         {
-            var signalRUrl = serviceProvider.GetSignalRUrl();
-            Console.WriteLine($"Using SignalR URL: {signalRUrl}");
+            serviceCollection.AddSingleton<HubConnection>(provider =>
+            {
+                var signalRUrl = provider.GetSignalRUrl();
+                Console.WriteLine($"Using SignalR URL: {signalRUrl}");
+                
+                var hubConnection = new HubConnectionBuilder()
+                    .WithUrl(signalRUrl)
+                    .Build();
 
-            var hubConnection = new HubConnectionBuilder()
-                .WithUrl(signalRUrl)
-                .Build();
-
-            hubConnection.On<List<DashboardMessage>>("dashboardMessage", messages => { Console.WriteLine(string.Join(Environment.NewLine, messages.Select(message => message.Details))); });
-
-            await hubConnection.StartAsync();
+                return hubConnection;
+            });
         }
     }
 }
