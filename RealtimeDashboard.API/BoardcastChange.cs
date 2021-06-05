@@ -15,7 +15,7 @@ namespace RealtimeDashboard.API
 {
     public static class BoardcastChange
     {
-        [FunctionName("Negotiate")]
+        [FunctionName("negotiate")]
         public static SignalRConnectionInfo GetConnectionInfo(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post")]
             HttpRequest httpRequest,
