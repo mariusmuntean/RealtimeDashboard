@@ -32,14 +32,14 @@ namespace RealtimeDashboard.API
                 LeaseCollectionName = "leases")]
             IReadOnlyList<Document> input,
             ILogger log,
-            [SignalR(HubName = "Dashboard")] IAsyncCollector<SignalRMessage> dashboardMessageCollector)
+            [SignalR(HubName = "Dashboard", ConnectionStringSetting = "SignalRConnString")] IAsyncCollector<SignalRMessage> dashboardMessageCollector)
         {
             if (input != null && input.Count > 0)
             {
                 log.LogInformation("Documents modified " + input.Count);
                 log.LogInformation(string.Join(Environment.NewLine, input.Select(document => JsonConvert.SerializeObject(document, Formatting.Indented))));
 
-                var messages = input.Select(document => new DashboardMessage {Id = document.Id, Details = document.GetPropertyValue<string>("temperature")});
+                var messages = input.Select(document => new DashboardMessage {Id = document.Id, Details = document.GetPropertyValue<string>("temp")});
 
                 await dashboardMessageCollector.AddAsync(new SignalRMessage {Target = "dashboardMessage", Arguments = new[] {messages.ToArray()}});
             }
