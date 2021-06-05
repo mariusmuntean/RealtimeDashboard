@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RealtimeDashboard.Blazor.Extensions;
 using RealtimeDashboard.Common;
 
 namespace RealtimeDashboard.Blazor
@@ -32,8 +33,11 @@ namespace RealtimeDashboard.Blazor
 
         private static async Task ConfigureSignalR(IServiceProvider serviceProvider)
         {
+            var signalRUrl = serviceProvider.GetSignalRUrl();
+            Console.WriteLine($"Using SignalR URL: {signalRUrl}");
+
             var hubConnection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:7071/api/")
+                .WithUrl(signalRUrl)
                 .Build();
 
             hubConnection.On<List<DashboardMessage>>("dashboardMessage", messages => { Console.WriteLine(string.Join(Environment.NewLine, messages.Select(message => message.Details))); });
