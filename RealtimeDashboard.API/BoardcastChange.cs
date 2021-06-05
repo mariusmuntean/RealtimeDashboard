@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RealtimeDashboard.Common;
 
 namespace RealtimeDashboard.API
 {
@@ -32,7 +33,8 @@ namespace RealtimeDashboard.API
                 LeaseCollectionName = "leases")]
             IReadOnlyList<Document> input,
             ILogger log,
-            [SignalR(HubName = "Dashboard", ConnectionStringSetting = "SignalRConnString")] IAsyncCollector<SignalRMessage> dashboardMessageCollector)
+            [SignalR(HubName = "Dashboard", ConnectionStringSetting = "SignalRConnString")]
+            IAsyncCollector<SignalRMessage> dashboardMessageCollector)
         {
             if (input != null && input.Count > 0)
             {
@@ -41,15 +43,8 @@ namespace RealtimeDashboard.API
 
                 var messages = input.Select(document => new DashboardMessage {Id = document.Id, Details = document.GetPropertyValue<string>("temp")});
 
-                await dashboardMessageCollector.AddAsync(new SignalRMessage {Target = "dashboardMessage", Arguments = new[] {messages.ToArray()}});
+                await dashboardMessageCollector.AddAsync(new SignalRMessage {Target = Common.Constants.WeatherMessageTarget, Arguments = new[] {messages.ToArray()}});
             }
         }
-    }
-
-    public class DashboardMessage
-    {
-        public string Id { get; set; }
-
-        public string Details { get; set; }
     }
 }

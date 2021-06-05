@@ -17,4 +17,7 @@
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </None>
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\RealtimeDashboard.Common\RealtimeDashboard.Common.csproj" />
+    </ItemGroup>
 </Project>

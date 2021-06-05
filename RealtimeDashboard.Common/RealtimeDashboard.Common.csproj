@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>RealtimeDashboard.Common</AssemblyName>
+        <RootNamespace>RealtimeDashboard.Common</RootNamespace>
+        <PackageId>RealtimeDashboard.Common</PackageId>
+        <Authors>RealtimeDashboard.Common</Authors>
+        <Company>RealtimeDashboard.Common</Company>
+        <Product>RealtimeDashboard.Common</Product>
+    </PropertyGroup>
+
+</Project>
